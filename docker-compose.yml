@@ -1,0 +1,50 @@
+membersrvc:
+  # try 'docker ps' to see the container status after starting this compose
+  container_name: membersrvc
+  image: hyperledger/fabric-membersrvc
+  ports:
+    - "7054:7054"
+  command: membersrvc
+
+peer:
+  container_name: peer
+  image: hyperledger/fabric-peer
+  ports:
+    - "7050:7050"
+    - "7051:7051"
+    - "7053:7053"
+  environment:
+    - CORE_PEER_ADDRESSAUTODETECT=true
+    - CORE_VM_ENDPOINT=unix:///var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_ID=vp0
+    - CORE_SECURITY_ENABLED=true
+    - CORE_PEER_PKI_ECA_PADDR=membersrvc:7054
+    - CORE_PEER_PKI_TCA_PADDR=membersrvc:7054
+    - CORE_PEER_PKI_TLSCA_PADDR=membersrvc:7054
+  # have the peer wait 10 sec for membersrvc to start
+  #  the following is to run the peer in Developer mode - also set nodesdk DEPLOY_MODE=dev
+  command: sh -c "sleep 10; peer node start --peer-chaincodedev"
+  #  the following is to run the peer in Network mode - also set the nodesdk DEPLOY_MODE=net
+  # command: sh -c "sleep 10; peer node start"
+  links:
+    - membersrvc
+
+nodesdk:
+  container_name: nodesdk
+  image: fabric-sdk
+  volumes:
+    - ~/dev/mytest:/opt/gopath/src/mytest
+  environment:
+    - MEMBERSRVC_ADDRESS=membersrvc:7054
+    - PEER_ADDRESS=peer:7051
+    - KEY_VALUE_STORE=/tmp/hl_sdk_node_key_value_store
+    - NODE_PATH=/usr/local/lib/node_modules
+    # set to following to 'dev' if peer running id Developer mode
+    - DEPLOY_MODE=dev
+  command: bash
+  stdin_open: true
+  tty: true
+  links:
+    - membersrvc
+    - peer
