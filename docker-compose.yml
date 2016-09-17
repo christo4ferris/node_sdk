@@ -16,15 +16,17 @@ peer:
   environment:
     - CORE_PEER_ADDRESSAUTODETECT=true
     - CORE_VM_ENDPOINT=unix:///var/run/docker.sock
-    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_LOGGING_LEVEL=WARNING
     - CORE_PEER_ID=vp0
     - CORE_SECURITY_ENABLED=true
     - CORE_PEER_PKI_ECA_PADDR=membersrvc:7054
     - CORE_PEER_PKI_TCA_PADDR=membersrvc:7054
     - CORE_PEER_PKI_TLSCA_PADDR=membersrvc:7054
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
   # have the peer wait 10 sec for membersrvc to start
   #  the following is to run the peer in Developer mode - also set nodesdk DEPLOY_MODE=dev
-  command: sh -c "sleep 10; peer node start --peer-chaincodedev"
+  command: sh -c "sleep 20; peer node start --peer-chaincodedev"
   #  the following is to run the peer in Network mode - also set the nodesdk DEPLOY_MODE=net
   # command: sh -c "sleep 10; peer node start"
   links:
@@ -43,6 +45,7 @@ nodesdk:
     # set to following to 'dev' if peer running id Developer mode
     - DEPLOY_MODE=dev
   command: bash
+  #command: sh -c "sleep 50; CORE_CHAINCODE_ID_NAME=mycc CORE_PEER_ADDRESS=peer:7051 ./chaincode_example02"
   stdin_open: true
   tty: true
   links:
