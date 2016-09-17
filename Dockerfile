@@ -1,4 +1,4 @@
-FROM hyperledger/fabric-src:latest
+FROM hyperledger/fabric-peer:latest
 RUN mkdir -p $GOPATH/src/chaincode_example02
 WORKDIR $GOPATH/src/chaincode_example02
 RUN sudo npm install --unsafe-perm -g hfc
